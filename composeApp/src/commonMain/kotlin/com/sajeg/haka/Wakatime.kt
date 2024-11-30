@@ -1,9 +1,10 @@
 package com.sajeg.haka
 
-import com.sajeg.haka.waka_data_classes.WakaData
-import com.sajeg.haka.waka_data_classes.WakaProjectData
-import com.sajeg.haka.waka_data_classes.WakaTotalTime
-import com.sajeg.haka.waka_data_classes.WakaUserData
+import com.sajeg.haka.waka.WakaArrayData
+import com.sajeg.haka.waka.WakaData
+import com.sajeg.haka.waka.WakaProjectData
+import com.sajeg.haka.waka.WakaTotalTime
+import com.sajeg.haka.waka.WakaUserData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.logging.DEFAULT
@@ -31,7 +32,7 @@ class Wakatime(
         }
     }
 
-    fun getUserData(onResponse: (response: WakaUserData) -> Unit) {
+    fun getUserData(onFailed: () -> Unit = {},onResponse: (response: WakaUserData) -> Unit) {
         CoroutineScope(Dispatchers.Default).launch {
             val response: HttpResponse = client.get("${apiEndpoint}/wakatime/v1/users/current") {
                 headers {
@@ -42,11 +43,13 @@ class Wakatime(
                 val body = response.body<String>()
                 val dataBody = Json.decodeFromString<WakaData>(body)
                 onResponse(Json.decodeFromString<WakaUserData>(dataBody.data.toString()))
+            } else {
+                onFailed()
             }
         }
     }
 
-    fun getAllTime(onResponse: (response: WakaTotalTime) -> Unit) {
+    fun getAllTime(onFailed: () -> Unit = {},onResponse: (response: WakaTotalTime) -> Unit) {
         CoroutineScope(Dispatchers.Default).launch {
             val response: HttpResponse =
                 client.get("${apiEndpoint}/wakatime/v1/users/current/all_time_since_today") {
@@ -58,11 +61,13 @@ class Wakatime(
                 val body = response.body<String>()
                 val dataBody = Json.decodeFromString<WakaData>(body)
                 onResponse(Json.decodeFromString<WakaTotalTime>(dataBody.data.toString()))
+            } else {
+                onFailed()
             }
         }
     }
 
-    fun getProjects(onResponse: (response: WakaProjectData) -> Unit) {
+    fun getProjects(onFailed: () -> Unit = {}, onResponse: (response: Array<WakaProjectData>) -> Unit) {
         CoroutineScope(Dispatchers.Default).launch {
             val response: HttpResponse =
                 client.get("${apiEndpoint}/wakatime/v1/users/current/projects") {
@@ -72,8 +77,10 @@ class Wakatime(
                 }
             if (response.status == HttpStatusCode.OK) {
                 val body = response.body<String>()
-                val dataBody = Json.decodeFromString<WakaData>(body)
-                onResponse(Json.decodeFromString<WakaProjectData>(dataBody.data.toString()))
+                val dataBody = Json.decodeFromString<WakaArrayData>(body)
+                onResponse(Json.decodeFromString<Array<WakaProjectData>>(dataBody.data.toString()))
+            } else {
+                onFailed()
             }
         }
     }
