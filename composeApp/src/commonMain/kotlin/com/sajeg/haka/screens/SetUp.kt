@@ -2,13 +2,14 @@ package com.sajeg.haka.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -21,6 +22,7 @@ import androidx.navigation.NavController
 import com.sajeg.haka.ProjectOverview
 import com.sajeg.haka.SaveManager
 import com.sajeg.haka.Wakatime
+import com.sajeg.haka.ui.theme.AppTheme
 import com.sajeg.haka.waka.WakaProjectData
 import com.sajeg.haka.waka.WakaTotalTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -28,22 +30,25 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun SetUp(navController: NavController) {
-    val save = SaveManager()
-    var apiToken by remember { mutableStateOf(save.loadString("api_token")) }
+    AppTheme {
 
-    Column(
-        modifier = Modifier.background(MaterialTheme.colors.background)
-    ) {
-        if (apiToken == "") {
-            SetUpToken { apiToken = it }
-        } else {
-            val waka = Wakatime(apiToken)
-            val projectData = remember { mutableStateListOf<WakaProjectData>() }
-            var totalTime by remember { mutableStateOf<WakaTotalTime?>(null) }
-            waka.getProjects { projects -> projects.forEach { projectData.add(it) } }
-            waka.getAllTime { totalTime = it }
-            if (projectData.isNotEmpty() && totalTime != null) {
-                navController.navigate(ProjectOverview)
+        val save = SaveManager()
+        var apiToken by remember { mutableStateOf(save.loadString("api_token")) }
+
+        Column(
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+        ) {
+            if (apiToken == "") {
+                SetUpToken { apiToken = it }
+            } else {
+                val waka = Wakatime(apiToken)
+                val projectData = remember { mutableStateListOf<WakaProjectData>() }
+                var totalTime by remember { mutableStateOf<WakaTotalTime?>(null) }
+                waka.getProjects { projects -> projects.forEach { projectData.add(it) } }
+                waka.getAllTime { totalTime = it }
+                if (projectData.isNotEmpty() && totalTime != null) {
+                    navController.navigate(ProjectOverview)
+                }
             }
         }
     }
@@ -57,7 +62,7 @@ fun SetUpToken(onButtonPress: (apiKey: String) -> Unit) {
     var failed by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier.padding(15.dp),
-        backgroundColor = MaterialTheme.colors.secondaryVariant
+//        backgroundColor = secondaryContainerDark
     ) {
         Column(
             modifier = Modifier.padding(5.dp)
@@ -69,7 +74,7 @@ fun SetUpToken(onButtonPress: (apiKey: String) -> Unit) {
                 modifier = Modifier.width(350.dp)
             )
             if (failed) {
-                Text("Invalid Token", color = MaterialTheme.colors.error)
+                Text("Invalid Token", color = MaterialTheme.colorScheme.error)
             }
             Button({
                 val waka = Wakatime(apiToken)

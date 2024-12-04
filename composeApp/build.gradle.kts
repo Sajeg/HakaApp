@@ -55,7 +55,6 @@ kotlin {
             implementation(libs.adaptive.layout)
             implementation(libs.adaptive.navigation)
             implementation(libs.navigation.compose)
-            implementation(libs.androidx.material)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.multiplatform.settings.no.arg)
             implementation(libs.multiplatform.settings)
@@ -63,7 +62,6 @@ kotlin {
             implementation(libs.ktor.client.logging)
             implementation(compose.runtime)
             implementation(compose.foundation)
-            implementation(compose.material)
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
@@ -123,4 +121,10 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+compose.resources {
+    publicResClass = false
+    packageOfResClass = "com.sajeg.haka.resources"
+    generateResClass = auto
 }
