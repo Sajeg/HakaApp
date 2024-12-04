@@ -51,9 +51,8 @@ kotlin {
             implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies {
-            implementation(libs.adaptive)
-            implementation(libs.adaptive.layout)
-            implementation(libs.adaptive.navigation)
+            implementation(compose.materialIconsExtended)
+            implementation(compose.material3AdaptiveNavigationSuite)
             implementation(libs.navigation.compose)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.multiplatform.settings.no.arg)

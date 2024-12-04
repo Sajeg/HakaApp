@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
 @Composable
-fun Leaderboard(navController: NavController) {
+fun Home(navController: NavController) {
     val currentDestination = navController.currentDestination?.route ?: ""
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -23,6 +23,6 @@ fun Leaderboard(navController: NavController) {
             }
         }
     ) {
-        Text("Welcome to Leaderboard")
+        Text("Welcome to Home")
     }
 }
