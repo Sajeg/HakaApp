@@ -1,4 +1,4 @@
-package com.sajeg.haka.waka
+package com.sajeg.haka.waka.classes
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject

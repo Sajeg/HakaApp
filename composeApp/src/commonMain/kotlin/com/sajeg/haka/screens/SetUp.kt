@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.sajeg.haka.Home
 import com.sajeg.haka.SaveManager
-import com.sajeg.haka.Wakatime
+import com.sajeg.haka.waka.Wakatime
 import com.sajeg.haka.ui.theme.AppTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 

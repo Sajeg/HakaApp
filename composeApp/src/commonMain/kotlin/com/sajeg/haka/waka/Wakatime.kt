@@ -1,10 +1,12 @@
-package com.sajeg.haka
+package com.sajeg.haka.waka
 
-import com.sajeg.haka.waka.WakaArrayData
-import com.sajeg.haka.waka.WakaData
-import com.sajeg.haka.waka.WakaProjectData
-import com.sajeg.haka.waka.WakaTotalTime
-import com.sajeg.haka.waka.WakaUserData
+import com.sajeg.haka.waka.classes.WakaAltData
+import com.sajeg.haka.waka.classes.WakaArrayData
+import com.sajeg.haka.waka.classes.WakaData
+import com.sajeg.haka.waka.classes.WakaProjectData
+import com.sajeg.haka.waka.classes.WakaToday
+import com.sajeg.haka.waka.classes.WakaTotalTime
+import com.sajeg.haka.waka.classes.WakaUserData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.logging.DEFAULT
@@ -79,6 +81,24 @@ class Wakatime(
                 val body = response.body<String>()
                 val dataBody = Json.decodeFromString<WakaArrayData>(body)
                 onResponse(Json.decodeFromString<Array<WakaProjectData>>(dataBody.data.toString()))
+            } else {
+                onFailed()
+            }
+        }
+    }
+
+    fun getToday(onFailed: () -> Unit = {}, onResponse: (response: WakaToday) -> Unit) {
+        CoroutineScope(Dispatchers.Default).launch {
+            val response: HttpResponse =
+                client.get("${apiEndpoint}/wakatime/v1/users/current/statusbar/today") {
+                    headers {
+                        append("Authorization", "Basic $token")
+                    }
+                }
+            if (response.status == HttpStatusCode.OK) {
+                val body = response.body<String>()
+                val dataBody = Json.decodeFromString<WakaAltData>(body)
+                onResponse(Json.decodeFromString<WakaToday>(dataBody.data.toString()))
             } else {
                 onFailed()
             }
