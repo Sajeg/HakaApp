@@ -3,9 +3,13 @@ package com.sajeg.haka.screens
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -63,17 +67,17 @@ fun Home(navController: NavController) {
                     todayProjects.add(jsonProject)
                 }
                 todayProjects.sortByDescending { it.totalSeconds }
-                today!!.languages.forEach { project ->
-                    val jsonLanguage = Json.decodeFromJsonElement<WakaTodayData>(project)
+                today!!.languages.forEach { languages ->
+                    val jsonLanguage = Json.decodeFromJsonElement<WakaTodayData>(languages)
                     todayLanguages.add(jsonLanguage)
                 }
-                today!!.editors.forEach { project ->
-                    val jsonEditor = Json.decodeFromJsonElement<WakaTodayData>(project)
-                    todayLanguages.add(jsonEditor)
+                today!!.editors.forEach { editors ->
+                    val jsonEditor = Json.decodeFromJsonElement<WakaTodayData>(editors)
+                    todayEditors.add(jsonEditor)
                 }
-                today!!.machines.forEach { project ->
-                    val jsonMachines = Json.decodeFromJsonElement<WakaTodayData>(project)
-                    todayLanguages.add(jsonMachines)
+                today!!.machines.forEach { machines ->
+                    val jsonMachines = Json.decodeFromJsonElement<WakaTodayData>(machines)
+                    todayMachines.add(jsonMachines)
                 }
             }
         }
@@ -84,13 +88,68 @@ fun Home(navController: NavController) {
             Column {
                 Text("You programmed a total of ${totalTime!!.text}")
                 BoxWithConstraints {
-                    if (maxWidth > 400.dp) {
+                    if (maxWidth > 750.dp) {
                         Row {
-                            if (todayProjects.size > 0) {
-                                Column {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(0.3f)
+                            ) {
+                                Text("Your top Projects today: ")
+                                LazyColumn {
+                                    items(todayProjects) { project ->
+                                        ProjectCard(project)
+                                    }
+                                }
+                            }
+                            Column(
+                                modifier = Modifier.fillMaxWidth(0.5f)
+                            ) {
+                                if (todayLanguages.size > 0) {
+                                    Text("Your top languages today: ")
+                                    LazyColumn {
+                                        items(todayLanguages) { project ->
+                                            ProjectCard(project)
+                                        }
+                                    }
+                                }
+                            }
+                            Column(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                if (todayEditors.size > 0) {
+                                    Text("Your top Editors today: ")
+                                    LazyColumn {
+                                        items(todayEditors) { project ->
+                                            ProjectCard(project)
+                                        }
+                                    }
+                                }
+                                if (todayMachines.size > 0) {
+                                    Text("Your top Machines today: ")
+                                    LazyColumn {
+                                        items(todayMachines) { project ->
+                                            ProjectCard(project)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else if (maxWidth > 500.dp) {
+                        Row {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(0.5f)
+                            ) {
+                                if (todayProjects.size > 0) {
                                     Text("Your top Projects today: ")
                                     LazyColumn {
                                         items(todayProjects) { project ->
+                                            ProjectCard(project)
+                                        }
+                                    }
+                                }
+                                if (todayMachines.size > 0) {
+                                    Text("Your top Machines today: ")
+                                    LazyColumn {
+                                        items(todayMachines) { project ->
                                             ProjectCard(project)
                                         }
                                     }
@@ -113,21 +172,41 @@ fun Home(navController: NavController) {
                                         }
                                     }
                                 }
-                                if (todayMachines.size > 0) {
-                                    Text("Your top Machines today: ")
-                                    LazyColumn {
-                                        items(todayMachines) { project ->
-                                            ProjectCard(project)
-                                        }
-                                    }
-                                }
                             }
                         }
                     } else {
-                        if (todayProjects.size > 0) {
-                            Text("Your top Projects today: ")
-                            LazyColumn {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
+                        ) {
+                            if (todayProjects.size > 0) {
+                                item {
+                                    Text("Your top Projects today: ")
+                                }
                                 items(todayProjects) { project ->
+                                    ProjectCard(project)
+                                }
+                            }
+                            if (todayLanguages.size > 0) {
+                                item {
+                                    Text("Your top languages today: ")
+                                }
+                                items(todayLanguages) { project ->
+                                    ProjectCard(project)
+                                }
+                            }
+                            if (todayEditors.size > 0) {
+                                item {
+                                    Text("Your top Editors today: ")
+                                }
+                                items(todayEditors) { project ->
+                                    ProjectCard(project)
+                                }
+                            }
+                            if (todayMachines.size > 0) {
+                                item {
+                                    Text("Your top Machines today: ")
+                                }
+                                items(todayMachines) { project ->
                                     ProjectCard(project)
                                 }
                             }
@@ -141,11 +220,11 @@ fun Home(navController: NavController) {
 @Composable
 fun ProjectCard(project: WakaTodayData) {
     Card(
-        modifier = Modifier.padding(5.dp)
+        modifier = Modifier.padding(5.dp).fillMaxSize()
     ) {
-        Column (
+        Column(
             modifier = Modifier.padding(15.dp)
-        ){
+        ) {
             Text(project.name, style = MaterialTheme.typography.displaySmall)
             Text(project.text, style = MaterialTheme.typography.labelMedium)
         }
