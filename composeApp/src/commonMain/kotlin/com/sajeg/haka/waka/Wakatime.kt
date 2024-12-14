@@ -1,8 +1,11 @@
 package com.sajeg.haka.waka
 
+import com.sajeg.haka.waka.classes.WakaLeaderboardArrayData
 import com.sajeg.haka.waka.classes.WakaAltData
 import com.sajeg.haka.waka.classes.WakaArrayData
+import com.sajeg.haka.waka.classes.WakaCurrentLeaderboardUser
 import com.sajeg.haka.waka.classes.WakaData
+import com.sajeg.haka.waka.classes.WakaLeaderboard
 import com.sajeg.haka.waka.classes.WakaProjectData
 import com.sajeg.haka.waka.classes.WakaToday
 import com.sajeg.haka.waka.classes.WakaTotalTime
@@ -99,6 +102,24 @@ class Wakatime(
                 val body = response.body<String>()
                 val dataBody = Json.decodeFromString<WakaAltData>(body)
                 onResponse(Json.decodeFromString<WakaToday>(dataBody.data.toString()))
+            } else {
+                onFailed()
+            }
+        }
+    }
+
+    fun getLeaderboard(onFailed: () -> Unit = {}, onResponse: (response: Array<WakaLeaderboard>, user: WakaCurrentLeaderboardUser) -> Unit) {
+        CoroutineScope(Dispatchers.Default).launch {
+            val response: HttpResponse =
+                client.get("${apiEndpoint}/wakatime/v1/leaders") {
+                    headers {
+                        append("Authorization", "Basic $token")
+                    }
+                }
+            if (response.status == HttpStatusCode.OK) {
+                val body = response.body<String>()
+                val dataBody = Json.decodeFromString<WakaLeaderboardArrayData>(body)
+                onResponse(Json.decodeFromString<Array<WakaLeaderboard>>(dataBody.data.toString()), dataBody.currentUser)
             } else {
                 onFailed()
             }

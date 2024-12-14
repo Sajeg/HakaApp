@@ -176,7 +176,7 @@ fun Home(navController: NavController) {
                         }
                     } else {
                         LazyColumn(
-                            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             if (todayProjects.size > 0) {
                                 item {
