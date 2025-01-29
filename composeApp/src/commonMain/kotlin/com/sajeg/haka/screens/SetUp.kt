@@ -18,7 +18,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.sajeg.haka.Home
 import com.sajeg.haka.SaveManager
@@ -67,6 +71,9 @@ fun SetUpToken(onButtonPress: (apiKey: String) -> Unit) {
             modifier = Modifier.padding(10.dp)
         ) {
             Text("Please Enter your api token: ")
+            Text("The api token is the same token that you used to set up Hackatime",
+                fontStyle = FontStyle.Italic,
+                fontSize = 11.sp)
             TextField(
                 apiToken,
                 { failed = false; apiToken = it },

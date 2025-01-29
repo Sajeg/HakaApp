@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -96,7 +94,7 @@ fun Home(navController: NavController) {
                                 Text("Your top Projects today: ")
                                 LazyColumn {
                                     items(todayProjects) { project ->
-                                        ProjectCard(project)
+                                        TodayCard(project)
                                     }
                                 }
                             }
@@ -107,7 +105,7 @@ fun Home(navController: NavController) {
                                     Text("Your top languages today: ")
                                     LazyColumn {
                                         items(todayLanguages) { project ->
-                                            ProjectCard(project)
+                                            TodayCard(project)
                                         }
                                     }
                                 }
@@ -119,7 +117,7 @@ fun Home(navController: NavController) {
                                     Text("Your top Editors today: ")
                                     LazyColumn {
                                         items(todayEditors) { project ->
-                                            ProjectCard(project)
+                                            TodayCard(project)
                                         }
                                     }
                                 }
@@ -127,7 +125,7 @@ fun Home(navController: NavController) {
                                     Text("Your top Machines today: ")
                                     LazyColumn {
                                         items(todayMachines) { project ->
-                                            ProjectCard(project)
+                                            TodayCard(project)
                                         }
                                     }
                                 }
@@ -142,7 +140,7 @@ fun Home(navController: NavController) {
                                     Text("Your top Projects today: ")
                                     LazyColumn {
                                         items(todayProjects) { project ->
-                                            ProjectCard(project)
+                                            TodayCard(project)
                                         }
                                     }
                                 }
@@ -150,7 +148,7 @@ fun Home(navController: NavController) {
                                     Text("Your top Machines today: ")
                                     LazyColumn {
                                         items(todayMachines) { project ->
-                                            ProjectCard(project)
+                                            TodayCard(project)
                                         }
                                     }
                                 }
@@ -160,7 +158,7 @@ fun Home(navController: NavController) {
                                     Text("Your top languages today: ")
                                     LazyColumn {
                                         items(todayLanguages) { project ->
-                                            ProjectCard(project)
+                                            TodayCard(project)
                                         }
                                     }
                                 }
@@ -168,7 +166,7 @@ fun Home(navController: NavController) {
                                     Text("Your top Editors today: ")
                                     LazyColumn {
                                         items(todayEditors) { project ->
-                                            ProjectCard(project)
+                                            TodayCard(project)
                                         }
                                     }
                                 }
@@ -183,7 +181,7 @@ fun Home(navController: NavController) {
                                     Text("Your top Projects today: ")
                                 }
                                 items(todayProjects) { project ->
-                                    ProjectCard(project)
+                                    TodayCard(project)
                                 }
                             }
                             if (todayLanguages.size > 0) {
@@ -191,7 +189,7 @@ fun Home(navController: NavController) {
                                     Text("Your top languages today: ")
                                 }
                                 items(todayLanguages) { project ->
-                                    ProjectCard(project)
+                                    TodayCard(project)
                                 }
                             }
                             if (todayEditors.size > 0) {
@@ -199,7 +197,7 @@ fun Home(navController: NavController) {
                                     Text("Your top Editors today: ")
                                 }
                                 items(todayEditors) { project ->
-                                    ProjectCard(project)
+                                    TodayCard(project)
                                 }
                             }
                             if (todayMachines.size > 0) {
@@ -207,7 +205,7 @@ fun Home(navController: NavController) {
                                     Text("Your top Machines today: ")
                                 }
                                 items(todayMachines) { project ->
-                                    ProjectCard(project)
+                                    TodayCard(project)
                                 }
                             }
                         }
@@ -218,7 +216,7 @@ fun Home(navController: NavController) {
 }
 
 @Composable
-fun ProjectCard(project: WakaTodayData) {
+fun TodayCard(project: WakaTodayData) {
     Card(
         modifier = Modifier.padding(5.dp).fillMaxSize()
     ) {
