@@ -7,6 +7,6 @@ import kotlinx.serialization.json.JsonObject
 @Serializable
 data class WakaLeaderboard(
     val rank: Int,
-    @SerialName("running_total") val runningTotal: JsonObject,
+    @SerialName("running_total") val runningTotal: WakaLeaderboardData,
     val user: WakaUserData
 )
