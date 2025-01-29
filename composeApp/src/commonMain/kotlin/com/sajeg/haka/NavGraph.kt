@@ -8,7 +8,9 @@ import androidx.navigation.toRoute
 import com.sajeg.haka.screens.Home
 import com.sajeg.haka.screens.Leaderboard
 import com.sajeg.haka.screens.ProjectOverview
+import com.sajeg.haka.screens.ProjectView
 import com.sajeg.haka.screens.SetUp
+import com.sajeg.haka.waka.classes.WakaTimeRange
 import kotlinx.serialization.Serializable
 
 @Composable
@@ -30,7 +32,14 @@ fun SetupNavGraph(
         }
         composable<ProjectView> {
             val params = it.toRoute<ProjectView>()
-//            FileViewer(navController, params.path)
+            ProjectView(
+                navController,
+                WakaTimeRange.fromString(params.timeRange) ?: WakaTimeRange.ALLTIME,
+                params.project,
+                params.language,
+                params.os,
+                params.machine
+            )
         }
     }
 }
@@ -49,5 +58,9 @@ object Home
 
 @Serializable
 data class ProjectView(
-    val project: String
+    val timeRange: String,
+    val project: String? = null,
+    val os: String? = null,
+    val language: String? = null,
+    val machine: String? = null
 )

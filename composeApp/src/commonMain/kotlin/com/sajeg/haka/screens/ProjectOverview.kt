@@ -1,5 +1,6 @@
 package com.sajeg.haka.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,9 +31,11 @@ import androidx.navigation.NavController
 import com.sajeg.haka.Home
 import com.sajeg.haka.Leaderboard
 import com.sajeg.haka.ProjectOverview
+import com.sajeg.haka.ProjectView
 import com.sajeg.haka.SaveManager
 import com.sajeg.haka.waka.Wakatime
 import com.sajeg.haka.waka.classes.WakaProjectData
+import com.sajeg.haka.waka.classes.WakaTimeRange
 import com.sajeg.haka.waka.classes.WakaTodayData
 
 enum class NavigationDestinations(
@@ -90,7 +93,7 @@ fun ProjectOverview(navController: NavController) {
             if (projects.isNotEmpty()) {
                 LazyColumn {
                     items(projects) {
-                        ProjectCard(it)
+                        ProjectCard(it, navController)
                     }
                 }
             } else {
@@ -107,9 +110,11 @@ fun ProjectOverview(navController: NavController) {
 }
 
 @Composable
-fun ProjectCard(project: WakaProjectData) {
+fun ProjectCard(project: WakaProjectData, navController: NavController) {
     Card(
-        modifier = Modifier.padding(5.dp).fillMaxSize()
+        modifier = Modifier.padding(5.dp).fillMaxSize().clickable {
+            navController.navigate(ProjectView(timeRange = WakaTimeRange.ALLTIME.toString(), project = project.id))
+        }
     ) {
         Column(
             modifier = Modifier.padding(15.dp)

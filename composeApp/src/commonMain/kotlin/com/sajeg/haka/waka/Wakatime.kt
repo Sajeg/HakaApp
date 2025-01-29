@@ -7,6 +7,8 @@ import com.sajeg.haka.waka.classes.WakaCurrentLeaderboardUser
 import com.sajeg.haka.waka.classes.WakaData
 import com.sajeg.haka.waka.classes.WakaLeaderboard
 import com.sajeg.haka.waka.classes.WakaProjectData
+import com.sajeg.haka.waka.classes.WakaStats
+import com.sajeg.haka.waka.classes.WakaTimeRange
 import com.sajeg.haka.waka.classes.WakaToday
 import com.sajeg.haka.waka.classes.WakaTotalTime
 import com.sajeg.haka.waka.classes.WakaUserData
@@ -20,10 +22,12 @@ import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
+import io.ktor.utils.io.InternalAPI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.internal.FormatLanguage
 
 
 class Wakatime(
@@ -37,7 +41,7 @@ class Wakatime(
         }
     }
 
-    fun getUserData(onFailed: () -> Unit = {},onResponse: (response: WakaUserData) -> Unit) {
+    fun getUserData(onFailed: () -> Unit = {}, onResponse: (response: WakaUserData) -> Unit) {
         CoroutineScope(Dispatchers.Default).launch {
             val response: HttpResponse = client.get("${apiEndpoint}/wakatime/v1/users/current") {
                 headers {
@@ -54,7 +58,7 @@ class Wakatime(
         }
     }
 
-    fun getAllTime(onFailed: () -> Unit = {},onResponse: (response: WakaTotalTime) -> Unit) {
+    fun getAllTime(onFailed: () -> Unit = {}, onResponse: (response: WakaTotalTime) -> Unit) {
         CoroutineScope(Dispatchers.Default).launch {
             val response: HttpResponse =
                 client.get("${apiEndpoint}/wakatime/v1/users/current/all_time_since_today") {
@@ -72,7 +76,10 @@ class Wakatime(
         }
     }
 
-    fun getProjects(onFailed: () -> Unit = {}, onResponse: (response: Array<WakaProjectData>) -> Unit) {
+    fun getProjects(
+        onFailed: () -> Unit = {},
+        onResponse: (response: Array<WakaProjectData>) -> Unit
+    ) {
         CoroutineScope(Dispatchers.Default).launch {
             val response: HttpResponse =
                 client.get("${apiEndpoint}/wakatime/v1/users/current/projects") {
@@ -108,7 +115,10 @@ class Wakatime(
         }
     }
 
-    fun getLeaderboard(onFailed: () -> Unit = {}, onResponse: (response: Array<WakaLeaderboard>, user: WakaCurrentLeaderboardUser) -> Unit) {
+    fun getLeaderboard(
+        onFailed: () -> Unit = {},
+        onResponse: (response: Array<WakaLeaderboard>, user: WakaCurrentLeaderboardUser) -> Unit
+    ) {
         CoroutineScope(Dispatchers.Default).launch {
             val response: HttpResponse =
                 client.get("${apiEndpoint}/wakatime/v1/leaders") {
@@ -119,8 +129,54 @@ class Wakatime(
             if (response.status == HttpStatusCode.OK) {
                 val body = response.body<String>()
                 val dataBody = Json.decodeFromString<WakaLeaderboardArrayData>(body)
-                onResponse(Json.decodeFromString<Array<WakaLeaderboard>>(dataBody.data.toString()), dataBody.currentUser)
+                onResponse(
+                    Json.decodeFromString<Array<WakaLeaderboard>>(dataBody.data.toString()),
+                    dataBody.currentUser
+                )
             } else {
+                onFailed()
+            }
+        }
+    }
+
+    fun getStats(
+        timeRange: WakaTimeRange,
+        project: String? = null,
+        language: String? = null,
+        os: String? = null,
+        machine: String? = null,
+        onFailed: () -> Unit = {},
+        onResponse: (response: WakaStats) -> Unit
+    ) {
+        CoroutineScope(Dispatchers.Default).launch {
+            var params = ""
+            if (project != null) {
+                params += "project=$project"
+            }
+            if (language != null) {
+                params += "language=$language"
+            }
+            if (os != null) {
+                params += "operating_system=$os"
+            }
+            if (machine != null) {
+                params += "machine=$machine"
+            }
+            val response: HttpResponse =
+                client.get("${apiEndpoint}/wakatime/v1/users/current/stats/${timeRange.time}?$params") {
+                    headers {
+                        append("Authorization", "Basic $token")
+                    }
+                }
+            if (response.status == HttpStatusCode.OK) {
+                val body = response.body<String>()
+                val dataBody = Json.decodeFromString<WakaData>(body)
+                println("Error: ${response.status} with ${response.headers} and ${dataBody.toString()}")
+                onResponse(
+                    Json.decodeFromString<WakaStats>(dataBody.data.toString()),
+                )
+            } else {
+                println("Error: ${response.status} with ${response.headers} and ${response.body<String>()}")
                 onFailed()
             }
         }
