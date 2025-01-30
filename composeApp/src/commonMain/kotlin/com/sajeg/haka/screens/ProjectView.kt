@@ -1,6 +1,7 @@
 package com.sajeg.haka.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -68,7 +69,8 @@ fun ProjectView(
     project: String? = null,
     language: String? = null,
     os: String? = null,
-    machine: String? = null
+    machine: String? = null,
+    editor: String? = null
 ) {
     val currentDestination = navController.currentDestination?.route ?: ""
     NavigationSuiteScaffold(
@@ -89,7 +91,80 @@ fun ProjectView(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(combineStrings(project, language, os, machine)) },
+                    title = {
+                        Row {
+                            if (project != null) {
+                                Text("$project ", modifier = Modifier.clickable {
+                                    navController.navigate(
+                                        ProjectView(
+                                            timeRange.toString(),
+                                            null,
+                                            os,
+                                            language,
+                                            machine,
+                                            editor
+                                        )
+                                    )
+                                })
+                            }
+                            if (editor != null) {
+                                Text("$editor ", modifier = Modifier.clickable {
+                                    navController.navigate(
+                                        ProjectView(
+                                            timeRange.toString(),
+                                            project,
+                                            os,
+                                            language,
+                                            machine,
+                                            null
+                                        )
+                                    )
+                                })
+                            }
+                            if (os != null) {
+                                Text("$os ", modifier = Modifier.clickable {
+                                    navController.navigate(
+                                        ProjectView(
+                                            timeRange.toString(),
+                                            project,
+                                            null,
+                                            language,
+                                            machine,
+                                            editor
+                                        )
+                                    )
+                                })
+                            }
+                            if (language != null) {
+                                Text("$language ", modifier = Modifier.clickable {
+                                    navController.navigate(
+                                        ProjectView(
+                                            timeRange.toString(),
+                                            project,
+                                            os,
+                                            null,
+                                            machine,
+                                            editor
+                                        )
+                                    )
+                                })
+                            }
+                            if (machine != null) {
+                                Text("$machine ", modifier = Modifier.clickable {
+                                    navController.navigate(
+                                        ProjectView(
+                                            timeRange.toString(),
+                                            project,
+                                            os,
+                                            language,
+                                            null,
+                                            editor
+                                        )
+                                    )
+                                })
+                            }
+                        }
+                    },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
@@ -101,13 +176,13 @@ fun ProjectView(
                 )
             }
         ) { padding ->
-            var innerModifier = Modifier.padding(padding)
+            val innerModifier = Modifier.padding(padding)
             var stats by remember { mutableStateOf<WakaStats?>(null) }
             val apiToken by remember { mutableStateOf(SaveManager().loadString("api_token")) }
             val waka = Wakatime(apiToken)
             if (stats == null) {
                 LaunchedEffect(stats) {
-                    waka.getStats(timeRange, project, language, os, machine) { newStats ->
+                    waka.getStats(timeRange, project, language, os, machine, editor) { newStats ->
                         stats = newStats
                     }
                 }
@@ -124,16 +199,18 @@ fun ProjectView(
                     modifier = innerModifier.fillMaxSize()
                 ) {
                     val dataToVisualize = mutableListOf(
-                        stats!!.editors,
                         stats!!.categories
                     )
                     val labels = mutableListOf(
-                        "Editors: ",
                         "Categories: "
                     )
                     if (os == null) {
                         dataToVisualize.add(0, stats!!.operatingSystems)
                         labels.add(0, "Operating systems: ")
+                    }
+                    if (editor == null) {
+                        dataToVisualize.add(0, stats!!.editors)
+                        labels.add(0, "Editors: ")
                     }
                     if (machine == null) {
                         dataToVisualize.add(0, stats!!.machines)
@@ -181,7 +258,8 @@ fun ProjectView(
                                                             project,
                                                             os,
                                                             language,
-                                                            machine
+                                                            machine,
+                                                            editor
                                                         )
                                                     )
                                                 },
@@ -200,40 +278,50 @@ fun ProjectView(
                                 }
                             }
                         }
-                        item {
-                            GitBranchVisualization(Modifier.fillMaxWidth(), stats!!.branches)
+                        if (stats!!.branches.isNotEmpty()) {
+                            item {
+                                GitBranchVisualization(Modifier.fillMaxWidth(), stats!!.branches)
+                            }
                         }
-                        items(dataToVisualize.withIndex().toList()) { (index, data) ->
-                            Text(
-                                text = labels[index],
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.padding(start = 10.dp)
-                            )
-                            GeneratePieChart(data, stats!!.humanReadableTotal) { newData ->
-                                val labelToParams = mapOf(
-                                    "Languages: " to listOf(project, os, newData, machine),
-                                    "Projects: " to listOf(newData, os, language, machine),
-                                    "Machines: " to listOf(
-                                        project, os, language, newData
-                                    ),
-                                    "Operating Systems:  " to listOf(
-                                        project,
-                                        newData,
-                                        language,
-                                        machine
+                        item {
+                            LazyVerticalGrid(
+                                modifier = Modifier.fillParentMaxWidth().height(3000.dp),
+                                columns = GridCells.Adaptive(500.dp)
+                            ) {
+                                items(dataToVisualize.withIndex().toList()) { (index, data) ->
+                                    Text(
+                                        text = labels[index],
+                                        style = MaterialTheme.typography.titleLarge,
+                                        modifier = Modifier.padding(start = 10.dp)
                                     )
-                                )
-
-                                labelToParams[labels[index]]?.let { params ->
-                                    navController.navigate(
-                                        ProjectView(
-                                            timeRange.toString(),
-                                            project = params[0],
-                                            os = params[1],
-                                            language = params[2],
-                                            machine = params[3],
+                                    GeneratePieChart(data, stats!!.humanReadableTotal) { newData ->
+                                        val labelToParams = mapOf(
+                                            "Languages: " to listOf(project, os, newData, machine, editor),
+                                            "Projects: " to listOf(newData, os, language, machine, editor),
+                                            "Machines: " to listOf(project, os, language, newData, editor),
+                                            "Operating Systems: " to listOf(
+                                                project,
+                                                newData,
+                                                language,
+                                                machine,
+                                                editor
+                                            ),
+                                            "Editors: " to listOf(project, os, language, machine, newData)
                                         )
-                                    )
+
+                                        labelToParams[labels[index]]?.let { params ->
+                                            navController.navigate(
+                                                ProjectView(
+                                                    timeRange.toString(),
+                                                    project = params[0],
+                                                    os = params[1],
+                                                    language = params[2],
+                                                    machine = params[3],
+                                                    editor = params[4]
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }

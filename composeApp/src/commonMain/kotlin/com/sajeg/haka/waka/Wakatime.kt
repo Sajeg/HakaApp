@@ -1,5 +1,6 @@
 package com.sajeg.haka.waka
 
+import coil3.disk.DiskCache
 import com.sajeg.haka.waka.classes.WakaLeaderboardArrayData
 import com.sajeg.haka.waka.classes.WakaAltData
 import com.sajeg.haka.waka.classes.WakaArrayData
@@ -145,6 +146,7 @@ class Wakatime(
         language: String? = null,
         os: String? = null,
         machine: String? = null,
+        editor: String? = null,
         onFailed: () -> Unit = {},
         onResponse: (response: WakaStats) -> Unit
     ) {
@@ -161,6 +163,9 @@ class Wakatime(
             }
             if (machine != null) {
                 params += "machine=$machine&"
+            }
+            if (editor != null) {
+                params += "editor=$editor&"
             }
             val response: HttpResponse =
                 client.get("${apiEndpoint}/wakatime/v1/users/current/stats/${timeRange.time}?$params") {

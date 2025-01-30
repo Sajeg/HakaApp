@@ -38,7 +38,8 @@ fun SetupNavGraph(
                 params.project,
                 params.language,
                 params.os,
-                params.machine
+                params.machine,
+                params.editor
             )
         }
     }
@@ -62,5 +63,6 @@ data class ProjectView(
     val project: String? = null,
     val os: String? = null,
     val language: String? = null,
-    val machine: String? = null
+    val machine: String? = null,
+    val editor: String? = null
 )

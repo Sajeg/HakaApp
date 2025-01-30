@@ -1,5 +1,7 @@
 package com.sajeg.haka.screens
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,8 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
@@ -29,6 +33,7 @@ import androidx.navigation.NavController
 import com.sajeg.haka.GitBranchVisualization
 import com.sajeg.haka.SaveManager
 import com.sajeg.haka.waka.Wakatime
+import com.sajeg.haka.waka.classes.WakaTimeRange
 import com.sajeg.haka.waka.classes.WakaToday
 import com.sajeg.haka.waka.classes.WakaTodayData
 import com.sajeg.haka.waka.classes.WakaTotalTime
@@ -61,182 +66,65 @@ fun Home(navController: NavController) {
             }
         }
     ) {
-        val save = SaveManager()
-        val apiToken by remember { mutableStateOf(save.loadString("api_token")) }
-        val waka = Wakatime(apiToken)
-        var totalTime by remember { mutableStateOf<WakaTotalTime?>(null) }
-        var today by remember { mutableStateOf<WakaToday?>(null) }
-        val todayProjects = remember { mutableStateListOf<WakaTodayData>() }
-        val todayMachines = remember { mutableStateListOf<WakaTodayData>() }
-        val todayEditors = remember { mutableStateListOf<WakaTodayData>() }
-        val todayLanguages = remember { mutableStateListOf<WakaTodayData>() }
+        Scaffold { padding ->
+            val innerModifier = Modifier.padding(padding)
+            val save = SaveManager()
+            val apiToken by remember { mutableStateOf(save.loadString("api_token")) }
+            val waka = Wakatime(apiToken)
+            var totalTime by remember { mutableStateOf<WakaTotalTime?>(null) }
+            var today by remember { mutableStateOf<WakaToday?>(null) }
+            val todayProjects = remember { mutableStateListOf<WakaTodayData>() }
+            val todayMachines = remember { mutableStateListOf<WakaTodayData>() }
+            val todayEditors = remember { mutableStateListOf<WakaTodayData>() }
+            val todayLanguages = remember { mutableStateListOf<WakaTodayData>() }
 
-        if (today == null) {
-            waka.getToday { data ->
-                today = data
-                today!!.projects.forEach { project ->
-                    val jsonProject = Json.decodeFromJsonElement<WakaTodayData>(project)
-                    todayProjects.add(jsonProject)
+            if (today == null) {
+                Column(
+                    modifier = innerModifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator()
                 }
-                todayProjects.sortByDescending { it.totalSeconds }
-                today!!.languages.forEach { languages ->
-                    val jsonLanguage = Json.decodeFromJsonElement<WakaTodayData>(languages)
-                    todayLanguages.add(jsonLanguage)
-                }
-                today!!.editors.forEach { editors ->
-                    val jsonEditor = Json.decodeFromJsonElement<WakaTodayData>(editors)
-                    todayEditors.add(jsonEditor)
-                }
-                today!!.machines.forEach { machines ->
-                    val jsonMachines = Json.decodeFromJsonElement<WakaTodayData>(machines)
-                    todayMachines.add(jsonMachines)
-                }
-            }
-        }
-        if (totalTime == null) {
-            waka.getAllTime { totalTime = it }
-        }
-        if (totalTime != null && today != null)
-            Column {
-                val data = buildList {
-                    for (i in 1..10) {
-                        add(DefaultPoint(i.toFloat(), i * i.toFloat()))
+                waka.getToday { data ->
+                    today = data
+                    today!!.projects.forEach { project ->
+                        val jsonProject = Json.decodeFromJsonElement<WakaTodayData>(project)
+                        todayProjects.add(jsonProject)
+                    }
+                    todayProjects.sortByDescending { it.totalSeconds }
+                    today!!.languages.forEach { languages ->
+                        val jsonLanguage = Json.decodeFromJsonElement<WakaTodayData>(languages)
+                        todayLanguages.add(jsonLanguage)
+                    }
+                    today!!.editors.forEach { editors ->
+                        val jsonEditor = Json.decodeFromJsonElement<WakaTodayData>(editors)
+                        todayEditors.add(jsonEditor)
+                    }
+                    today!!.machines.forEach { machines ->
+                        val jsonMachines = Json.decodeFromJsonElement<WakaTodayData>(machines)
+                        todayMachines.add(jsonMachines)
                     }
                 }
-                BoxWithConstraints {
-                    if (maxWidth > 750.dp) {
-
-                        Column {
-                            Row (
-                                modifier = Modifier.height(100.dp)
-                            ){
-                                TodayCard(
-                                    WakaTodayData(
-                                        name = totalTime!!.text,
-                                        text = "total hours of programming",
-                                        digital = "",
-                                        hours = 0,
-                                        minutes = 0,
-                                        percent = 0.9f,
-                                        seconds = 0,
-                                        totalSeconds = 0
-                                    ),
-                                    true
-                                )
-                            }
-                            Row {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth(0.3f)
-                                ) {
-                                    Text("Your top Projects today: ")
-                                    LazyColumn {
-                                        items(todayProjects) { project ->
-                                            TodayCard(project)
-                                        }
-                                    }
-                                }
-                                Column(
-                                    modifier = Modifier.fillMaxWidth(0.5f)
-                                ) {
-                                    if (todayLanguages.size > 0) {
-                                        Text("Your top languages today: ")
-                                        LazyColumn {
-                                            items(todayLanguages) { project ->
-                                                TodayCard(project)
-                                            }
-                                        }
-                                    }
-                                }
-                                Column(
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    if (todayEditors.size > 0) {
-                                        Text("Your top Editors today: ")
-                                        LazyColumn {
-                                            items(todayEditors) { project ->
-                                                TodayCard(project)
-                                            }
-                                        }
-                                    }
-                                    if (todayMachines.size > 0) {
-                                        Text("Your top Machines today: ")
-                                        LazyColumn {
-                                            items(todayMachines) { project ->
-                                                TodayCard(project)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+            }
+            if (totalTime == null) {
+                waka.getAllTime { totalTime = it }
+            }
+            if (totalTime != null && today != null)
+                Column {
+                    val data = buildList {
+                        for (i in 1..10) {
+                            add(DefaultPoint(i.toFloat(), i * i.toFloat()))
                         }
-                    } else if (maxWidth > 500.dp) {
-                        Column {
-                            Row (
-                                modifier = Modifier.height(100.dp)
-                            ){
-                                TodayCard(
-                                    WakaTodayData(
-                                        name = totalTime!!.text,
-                                        text = "total hours of programming",
-                                        digital = "",
-                                        hours = 0,
-                                        minutes = 0,
-                                        percent = 0.9f,
-                                        seconds = 0,
-                                        totalSeconds = 0
-                                    ),
-                                    true
-                                )
-                            }
-                            Row {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth(0.5f)
-                                ) {
-                                    if (todayProjects.size > 0) {
-                                        Text("Your top Projects today: ")
-                                        LazyColumn {
-                                            items(todayProjects) { project ->
-                                                TodayCard(project)
-                                            }
-                                        }
-                                    }
-                                    if (todayMachines.size > 0) {
-                                        Text("Your top Machines today: ")
-                                        LazyColumn {
-                                            items(todayMachines) { project ->
-                                                TodayCard(project)
-                                            }
-                                        }
-                                    }
-                                }
-                                Column {
-                                    if (todayLanguages.size > 0) {
-                                        Text("Your top languages today: ")
-                                        LazyColumn {
-                                            items(todayLanguages) { project ->
-                                                TodayCard(project)
-                                            }
-                                        }
-                                    }
-                                    if (todayEditors.size > 0) {
-                                        Text("Your top Editors today: ")
-                                        LazyColumn {
-                                            items(todayEditors) { project ->
-                                                TodayCard(project)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            item {
-                                Row (
+                    }
+                    BoxWithConstraints(
+                        modifier = innerModifier
+                    ) {
+                        if (maxWidth > 750.dp) {
+                            Column {
+                                Row(
                                     modifier = Modifier.height(100.dp)
-                                ){
+                                ) {
                                     TodayCard(
                                         WakaTodayData(
                                             name = totalTime!!.text,
@@ -249,64 +137,276 @@ fun Home(navController: NavController) {
                                             totalSeconds = 0
                                         ),
                                         true
-                                    )
+                                    ) {}
+                                }
+                                Row {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(0.3f)
+                                    ) {
+                                        Text("Your top Projects today: ")
+                                        LazyColumn {
+                                            items(todayProjects) { project ->
+                                                TodayCard(project) {
+                                                    navController.navigate(
+                                                        com.sajeg.haka.ProjectView(
+                                                            timeRange = WakaTimeRange.ALL_TIME.toString(),
+                                                            project = project.name
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(0.5f)
+                                    ) {
+                                        if (todayLanguages.size > 0) {
+                                            Text("Your top languages today: ")
+                                            LazyColumn {
+                                                items(todayLanguages) { project ->
+                                                    TodayCard(project) {
+                                                        navController.navigate(
+                                                            com.sajeg.haka.ProjectView(
+                                                                timeRange = WakaTimeRange.ALL_TIME.toString(),
+                                                                language = project.name
+                                                            )
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        if (todayEditors.size > 0) {
+                                            Text("Your top Editors today: ")
+                                            LazyColumn {
+                                                items(todayEditors) { project ->
+                                                    TodayCard(project) {
+                                                        navController.navigate(
+                                                            com.sajeg.haka.ProjectView(
+                                                                timeRange = WakaTimeRange.ALL_TIME.toString(),
+                                                                editor = project.name
+                                                            )
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (todayMachines.size > 0) {
+                                            Text("Your top Machines today: ")
+                                            LazyColumn {
+                                                items(todayMachines) { project ->
+                                                    TodayCard(project) {
+                                                        navController.navigate(
+                                                            com.sajeg.haka.ProjectView(
+                                                                timeRange = WakaTimeRange.ALL_TIME.toString(),
+                                                                machine = project.name
+                                                            )
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                            if (todayProjects.size > 0) {
-                                item {
-                                    Text(
-                                        "Your top Projects today: ",
-                                        modifier = Modifier.padding(start = 5.dp)
-                                    )
+                        } else if (maxWidth > 500.dp) {
+                            Column {
+                                Row(
+                                    modifier = Modifier.height(100.dp)
+                                ) {
+                                    TodayCard(
+                                        WakaTodayData(
+                                            name = totalTime!!.text,
+                                            text = "total hours of programming",
+                                            digital = "",
+                                            hours = 0,
+                                            minutes = 0,
+                                            percent = 0.9f,
+                                            seconds = 0,
+                                            totalSeconds = 0
+                                        ),
+                                        true
+                                    ) {}
                                 }
-                                items(todayProjects) { project ->
-                                    TodayCard(project)
+                                Row {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(0.5f)
+                                    ) {
+                                        if (todayProjects.size > 0) {
+                                            Text("Your top Projects today: ")
+                                            LazyColumn {
+                                                items(todayProjects) { project ->
+                                                    TodayCard(project) {
+                                                        navController.navigate(
+                                                            com.sajeg.haka.ProjectView(
+                                                                timeRange = WakaTimeRange.ALL_TIME.toString(),
+                                                                project = project.name
+                                                            )
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (todayMachines.size > 0) {
+                                            Text("Your top Machines today: ")
+                                            LazyColumn {
+                                                items(todayMachines) { project ->
+                                                    TodayCard(project) {
+                                                        navController.navigate(
+                                                            com.sajeg.haka.ProjectView(
+                                                                timeRange = WakaTimeRange.ALL_TIME.toString(),
+                                                                machine = project.name
+                                                            )
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Column {
+                                        if (todayLanguages.size > 0) {
+                                            Text("Your top languages today: ")
+                                            LazyColumn {
+                                                items(todayLanguages) { project ->
+                                                    TodayCard(project) {
+                                                        navController.navigate(
+                                                            com.sajeg.haka.ProjectView(
+                                                                timeRange = WakaTimeRange.ALL_TIME.toString(),
+                                                                language = project.name
+                                                            )
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (todayEditors.size > 0) {
+                                            Text("Your top Editors today: ")
+                                            LazyColumn {
+                                                items(todayEditors) { project ->
+                                                    TodayCard(project) {
+                                                        navController.navigate(
+                                                            com.sajeg.haka.ProjectView(
+                                                                timeRange = WakaTimeRange.ALL_TIME.toString(),
+                                                                editor = project.name
+                                                            )
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                            if (todayLanguages.size > 0) {
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
                                 item {
-                                    Text(
-                                        "Your top languages today: ",
-                                        modifier = Modifier.padding(start = 5.dp)
-                                    )
+                                    Row(
+                                        modifier = Modifier.height(100.dp)
+                                    ) {
+                                        TodayCard(
+                                            WakaTodayData(
+                                                name = totalTime!!.text,
+                                                text = "total hours of programming",
+                                                digital = "",
+                                                hours = 0,
+                                                minutes = 0,
+                                                percent = 0.9f,
+                                                seconds = 0,
+                                                totalSeconds = 0
+                                            ),
+                                            true
+                                        ) {}
+                                    }
                                 }
-                                items(todayLanguages) { project ->
-                                    TodayCard(project)
+                                if (todayProjects.size > 0) {
+                                    item {
+                                        Text(
+                                            "Your top Projects today: ",
+                                            modifier = Modifier.padding(start = 5.dp)
+                                        )
+                                    }
+                                    items(todayProjects) { project ->
+                                        TodayCard(project) {
+                                            navController.navigate(
+                                                com.sajeg.haka.ProjectView(
+                                                    timeRange = WakaTimeRange.ALL_TIME.toString(),
+                                                    project = project.name
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
-                            }
-                            if (todayEditors.size > 0) {
-                                item {
-                                    Text(
-                                        "Your top Editors today: ",
-                                        modifier = Modifier.padding(start = 5.dp)
-                                    )
+                                if (todayLanguages.size > 0) {
+                                    item {
+                                        Text(
+                                            "Your top languages today: ",
+                                            modifier = Modifier.padding(start = 5.dp)
+                                        )
+                                    }
+                                    items(todayLanguages) { project ->
+                                        TodayCard(project) {
+                                            navController.navigate(
+                                                com.sajeg.haka.ProjectView(
+                                                    timeRange = WakaTimeRange.ALL_TIME.toString(),
+                                                    language = project.name
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
-                                items(todayEditors) { project ->
-                                    TodayCard(project)
+                                if (todayEditors.size > 0) {
+                                    item {
+                                        Text(
+                                            "Your top Editors today: ",
+                                            modifier = Modifier.padding(start = 5.dp)
+                                        )
+                                    }
+                                    items(todayEditors) { project ->
+                                        TodayCard(project) {
+                                            navController.navigate(
+                                                com.sajeg.haka.ProjectView(
+                                                    timeRange = WakaTimeRange.ALL_TIME.toString(),
+                                                    editor = project.name
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
-                            }
-                            if (todayMachines.size > 0) {
-                                item {
-                                    Text(
-                                        "Your top Machines today: ",
-                                        modifier = Modifier.padding(start = 5.dp)
-                                    )
-                                }
-                                items(todayMachines) { project ->
-                                    TodayCard(project)
+                                if (todayMachines.size > 0) {
+                                    item {
+                                        Text(
+                                            "Your top Machines today: ",
+                                            modifier = Modifier.padding(start = 5.dp)
+                                        )
+                                    }
+                                    items(todayMachines) { project ->
+                                        TodayCard(project) {
+                                            navController.navigate(
+                                                com.sajeg.haka.ProjectView(
+                                                    timeRange = WakaTimeRange.ALL_TIME.toString(),
+                                                    machine = project.name
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
+        }
     }
 }
 
 @Composable
-fun TodayCard(project: WakaTodayData, center: Boolean = false) {
+fun TodayCard(project: WakaTodayData, center: Boolean = false, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.padding(5.dp).fillMaxSize()
+        modifier = Modifier.padding(5.dp).fillMaxSize().clickable { onClick() }
     ) {
         Column(
             modifier = Modifier.padding(15.dp).fillMaxWidth(),

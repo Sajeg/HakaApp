@@ -15,6 +15,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
@@ -70,38 +71,43 @@ fun ProjectOverview(navController: NavController) {
             }
         }
     ) {
-        val projects = remember { mutableListOf<WakaProjectData>() }
-        val apiToken by remember { mutableStateOf(SaveManager().loadString("api_token")) }
-        var update by remember { mutableStateOf("Start") }
-        val waka = Wakatime(apiToken)
-        LaunchedEffect(Unit) {
-            update = "Connecting"
-            waka.getProjects({
-                update = "Failed"
-                val text = "Lol"
-            }
-            ) { project ->
-                update = "Success"
-                projects.addAll(project)
-            }
-        }
-        Column {
-            if (update != "Success") {
-                Text(update, color = MaterialTheme.colorScheme.surface)
-            }
-            if (projects.isNotEmpty()) {
-                LazyColumn {
-                    items(projects) {
-                        ProjectCard(it, navController)
-                    }
+        Scaffold { padding ->
+            val innerModifier = Modifier.padding(padding)
+            val projects = remember { mutableListOf<WakaProjectData>() }
+            val apiToken by remember { mutableStateOf(SaveManager().loadString("api_token")) }
+            var update by remember { mutableStateOf("Start") }
+            val waka = Wakatime(apiToken)
+            LaunchedEffect(Unit) {
+                update = "Connecting"
+                waka.getProjects({
+                    update = "Failed"
+                    val text = "Lol"
                 }
-            } else {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    CircularProgressIndicator()
+                ) { project ->
+                    update = "Success"
+                    projects.addAll(project)
+                }
+            }
+            Column {
+                if (update != "Success") {
+                    Text(update, color = MaterialTheme.colorScheme.surface)
+                }
+                if (projects.isNotEmpty()) {
+                    LazyColumn (
+                        modifier = innerModifier
+                    ){
+                        items(projects) {
+                            ProjectCard(it, navController)
+                        }
+                    }
+                } else {
+                    Column(
+                        modifier = innerModifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
         }

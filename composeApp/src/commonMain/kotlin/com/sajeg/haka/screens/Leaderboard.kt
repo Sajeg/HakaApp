@@ -1,10 +1,12 @@
 package com.sajeg.haka.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
@@ -14,8 +16,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
@@ -53,31 +57,40 @@ fun Leaderboard(navController: NavController) {
             }
         }
     ) {
-        val save = SaveManager()
-        val apiToken by remember { mutableStateOf(save.loadString("api_token")) }
-        val leaderboard = remember { mutableStateListOf<WakaLeaderboard>() }
-        if (leaderboard.isEmpty()) {
-            Text("Loading... Please wait a few seconds", modifier = Modifier.safeDrawingPadding())
-            val waka = Wakatime(apiToken)
-            waka.getLeaderboard { leaderboardData, currentUser ->
-                leaderboardData.forEach { leaderboard.add(it) }
-                val user = leaderboard.last()
-                leaderboard.remove(user)
-                leaderboard.add(0, user)
-            }
-        } else {
-            LazyColumn {
-                item {
-                    Text(
-                        "You",
-                        modifier = Modifier.safeDrawingPadding()
-                            .padding(start = 5.dp, bottom = 5.dp)
-                    )
+        Scaffold { padding ->
+            val innerModifier = Modifier.padding(padding)
+            val save = SaveManager()
+            val apiToken by remember { mutableStateOf(save.loadString("api_token")) }
+            val leaderboard = remember { mutableStateListOf<WakaLeaderboard>() }
+            if (leaderboard.isEmpty()) {
+                val waka = Wakatime(apiToken)
+                waka.getLeaderboard { leaderboardData, currentUser ->
+                    leaderboardData.forEach { leaderboard.add(it) }
+                    val user = leaderboard.last()
+                    leaderboard.remove(user)
+                    leaderboard.add(0, user)
                 }
-                item { scoreCard(leaderboard.first()) }
-                item { Text("1. - 100.", modifier = Modifier.padding(5.dp)) }
-                items(leaderboard.subList(1, leaderboard.size)) { score ->
-                    scoreCard(score)
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyColumn {
+                    item {
+                        Text(
+                            "You",
+                            modifier = Modifier.safeDrawingPadding()
+                                .padding(start = 5.dp, bottom = 5.dp)
+                        )
+                    }
+                    item { scoreCard(leaderboard.first()) }
+                    item { Text("1. - 100.", modifier = Modifier.padding(5.dp)) }
+                    items(leaderboard.subList(1, leaderboard.size)) { score ->
+                        scoreCard(score)
+                    }
                 }
             }
         }
