@@ -46,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.sajeg.haka.GitBranchVisualization
@@ -75,6 +76,7 @@ fun ProjectView(
     editor: String? = null
 ) {
     val currentDestination = navController.currentDestination?.route ?: ""
+    val save = SaveManager()
     NavigationSuiteScaffold(
         modifier = Modifier,
         navigationSuiteItems = {
@@ -97,6 +99,7 @@ fun ProjectView(
                         Row {
                             if (project != null) {
                                 Text("$project ", modifier = Modifier.clickable {
+                                    save.saveString("hint_2", "shown")
                                     navController.navigate(
                                         ProjectView(
                                             timeRange.toString(),
@@ -111,6 +114,7 @@ fun ProjectView(
                             }
                             if (editor != null) {
                                 Text("$editor ", modifier = Modifier.clickable {
+                                    save.saveString("hint_2", "shown")
                                     navController.navigate(
                                         ProjectView(
                                             timeRange.toString(),
@@ -125,6 +129,7 @@ fun ProjectView(
                             }
                             if (os != null) {
                                 Text("$os ", modifier = Modifier.clickable {
+                                    save.saveString("hint_2", "shown")
                                     navController.navigate(
                                         ProjectView(
                                             timeRange.toString(),
@@ -139,6 +144,7 @@ fun ProjectView(
                             }
                             if (language != null) {
                                 Text("$language ", modifier = Modifier.clickable {
+                                    save.saveString("hint_2", "shown")
                                     navController.navigate(
                                         ProjectView(
                                             timeRange.toString(),
@@ -153,6 +159,7 @@ fun ProjectView(
                             }
                             if (machine != null) {
                                 Text("$machine ", modifier = Modifier.clickable {
+                                    save.saveString("hint_2", "shown")
                                     navController.navigate(
                                         ProjectView(
                                             timeRange.toString(),
@@ -180,7 +187,9 @@ fun ProjectView(
         ) { padding ->
             val innerModifier = Modifier.padding(padding)
             var stats by remember { mutableStateOf<WakaStats?>(null) }
-            val apiToken by remember { mutableStateOf(SaveManager().loadString("api_token")) }
+            val apiToken by remember { mutableStateOf(save.loadString("api_token")) }
+            val showHint1 by remember { mutableStateOf(save.loadString("hint_1")) }
+            val showHint2 by remember { mutableStateOf(save.loadString("hint_2")) }
             val waka = Wakatime(apiToken)
             if (stats == null) {
                 LaunchedEffect(stats) {
@@ -285,6 +294,25 @@ fun ProjectView(
                             }
                         }
                     }
+                    if (showHint2 == "") {
+                        if (showHint1 == "") {
+                            item {
+                                Text(
+                                    "Tip: to filter simply click on the slice of the corresponding pie chart.",
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        } else {
+                            item {
+                                Text(
+                                    "Tip: to remove the filter tap on it's name at the top",
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    }
                     if (stats!!.branches.isNotEmpty()) {
                         item(span = { GridItemSpan(maxLineSpan) }) {
                             GitBranchVisualization(
@@ -302,6 +330,7 @@ fun ProjectView(
                             modifier = Modifier.padding(10.dp)
                         )
                         GeneratePieChart(data, showTotalData) { newData ->
+                            save.saveString("hint_1", "shown")
                             val labelToParams = mapOf(
                                 "Languages: " to listOf(project, os, newData, machine, editor),
                                 "Projects: " to listOf(newData, os, language, machine, editor),
