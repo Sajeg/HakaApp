@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -195,167 +197,161 @@ fun ProjectView(
                 }
 
             } else {
-                Column(
-                    modifier = innerModifier.fillMaxSize()
+                val cardStats = mapOf(
+                    "Daily average: " to stats!!.humanReadableDailyAverage,
+                    "Days: " to stats!!.daysIncludingHolidays,
+                    "Least used Language: " to stats!!.languages.last().name
+                )
+                val dataToVisualize = mutableListOf(
+                    stats!!.categories
+                )
+                val labels = mutableListOf(
+                    "Categories: "
+                )
+                if (os == null) {
+                    dataToVisualize.add(0, stats!!.operatingSystems)
+                    labels.add(0, "Operating systems: ")
+                }
+                if (editor == null) {
+                    dataToVisualize.add(0, stats!!.editors)
+                    labels.add(0, "Editors: ")
+                }
+                if (machine == null) {
+                    dataToVisualize.add(0, stats!!.machines)
+                    labels.add(0, "Machines: ")
+                }
+                if (project == null) {
+                    dataToVisualize.add(0, stats!!.projects)
+                    labels.add(0, "Projects: ")
+                }
+                if (language == null) {
+                    dataToVisualize.add(0, stats!!.languages)
+                    labels.add(0, "Languages: ")
+                }
+
+                LazyVerticalGrid(
+                    modifier = innerModifier.fillMaxHeight(),
+                    columns = GridCells.Adaptive(500.dp)
                 ) {
-                    val dataToVisualize = mutableListOf(
-                        stats!!.categories
-                    )
-                    val labels = mutableListOf(
-                        "Categories: "
-                    )
-                    if (os == null) {
-                        dataToVisualize.add(0, stats!!.operatingSystems)
-                        labels.add(0, "Operating systems: ")
-                    }
-                    if (editor == null) {
-                        dataToVisualize.add(0, stats!!.editors)
-                        labels.add(0, "Editors: ")
-                    }
-                    if (machine == null) {
-                        dataToVisualize.add(0, stats!!.machines)
-                        labels.add(0, "Machines: ")
-                    }
-                    if (project == null) {
-                        dataToVisualize.add(0, stats!!.projects)
-                        labels.add(0, "Projects: ")
-                    }
-                    if (language == null) {
-                        dataToVisualize.add(0, stats!!.languages)
-                        labels.add(0, "Languages: ")
-                    }
-
-                    LazyColumn {
-                        item {
-                            LazyRow {
-                                item {
-                                    Spacer(Modifier.size(10.dp))
-                                }
-                                item {
-                                    SingleChoiceSegmentedButtonRow {
-                                        val buttons = arrayOf(
-                                            arrayOf("all_time", "All time"),
-                                            arrayOf("today", "Today"),
-                                            arrayOf("yesterday", "Yesterday"),
-                                            arrayOf("week", "Week"),
-                                            arrayOf("month", "Month"),
-                                            arrayOf("year", "Year"),
-//                                arrayOf("7_days", "7 days"),
-                                            arrayOf("last_7_days", "Last 7 days"),
-//                                arrayOf("30_days", "30 days"),
-                                            arrayOf("last_30_days", "Last 30 days"),
-//                                arrayOf("6_months", "6 Months"),
-                                            arrayOf("last_6_months", "Last 6 months"),
-//                                arrayOf("12_months", "12 months"),
-                                        )
-                                        for (i in buttons.indices) {
-                                            SegmentedButton(
-                                                selected = timeRange.time == buttons[i][0],
-                                                onClick = {
-                                                    navController.navigate(
-                                                        ProjectView(
-                                                            buttons[i][0],
-                                                            project,
-                                                            os,
-                                                            language,
-                                                            machine,
-                                                            editor
-                                                        )
-                                                    )
-                                                },
-                                                shape = SegmentedButtonDefaults.itemShape(
-                                                    i,
-                                                    buttons.size
-                                                )
-                                            ) {
-                                                Text(buttons[i][1])
-                                            }
-                                        }
-                                    }
-                                }
-                                item {
-                                    Spacer(Modifier.size(10.dp))
-                                }
-                            }
-                        }
-                        if (stats!!.branches.isNotEmpty()) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        LazyRow {
                             item {
-                                GitBranchVisualization(Modifier.fillMaxWidth(), stats!!.branches)
+                                Spacer(Modifier.size(10.dp))
                             }
-                        }
-                        item {
-                            LazyVerticalGrid(
-                                modifier = Modifier.fillParentMaxWidth().height(3000.dp),
-                                columns = GridCells.Adaptive(500.dp)
-                            ) {
-                                items(dataToVisualize.withIndex().toList()) { (index, data) ->
-                                    Text(
-                                        text = labels[index],
-                                        style = MaterialTheme.typography.titleLarge,
-                                        modifier = Modifier.padding(start = 10.dp)
+                            item {
+                                SingleChoiceSegmentedButtonRow {
+                                    val buttons = arrayOf(
+                                        arrayOf("all_time", "All time"),
+                                        arrayOf("today", "Today"),
+                                        arrayOf("yesterday", "Yesterday"),
+                                        arrayOf("week", "Week"),
+                                        arrayOf("month", "Month"),
+                                        arrayOf("year", "Year"),
+//                                arrayOf("7_days", "7 days"),
+                                        arrayOf("last_7_days", "Last 7 days"),
+//                                arrayOf("30_days", "30 days"),
+                                        arrayOf("last_30_days", "Last 30 days"),
+//                                arrayOf("6_months", "6 Months"),
+                                        arrayOf("last_6_months", "Last 6 months"),
+//                                arrayOf("12_months", "12 months"),
                                     )
-                                    GeneratePieChart(data, stats!!.humanReadableTotal) { newData ->
-                                        val labelToParams = mapOf(
-                                            "Languages: " to listOf(project, os, newData, machine, editor),
-                                            "Projects: " to listOf(newData, os, language, machine, editor),
-                                            "Machines: " to listOf(project, os, language, newData, editor),
-                                            "Operating Systems: " to listOf(
-                                                project,
-                                                newData,
-                                                language,
-                                                machine,
-                                                editor
-                                            ),
-                                            "Editors: " to listOf(project, os, language, machine, newData)
-                                        )
-
-                                        labelToParams[labels[index]]?.let { params ->
-                                            navController.navigate(
-                                                ProjectView(
-                                                    timeRange.toString(),
-                                                    project = params[0],
-                                                    os = params[1],
-                                                    language = params[2],
-                                                    machine = params[3],
-                                                    editor = params[4]
+                                    for (i in buttons.indices) {
+                                        SegmentedButton(
+                                            selected = timeRange.time == buttons[i][0],
+                                            onClick = {
+                                                navController.navigate(
+                                                    ProjectView(
+                                                        buttons[i][0],
+                                                        project,
+                                                        os,
+                                                        language,
+                                                        machine,
+                                                        editor
+                                                    )
                                                 )
+                                            },
+                                            shape = SegmentedButtonDefaults.itemShape(
+                                                i,
+                                                buttons.size
                                             )
+                                        ) {
+                                            Text(buttons[i][1])
                                         }
                                     }
                                 }
                             }
+                            item {
+                                Spacer(Modifier.size(10.dp))
+                            }
                         }
-                        item {
-                            val cardStats = mapOf(
-                                "Daily average: " to stats!!.humanReadableDailyAverage,
-                                "Days: " to stats!!.daysIncludingHolidays,
-                                "Least used Language: " to stats!!.languages.last().name
+                    }
+                    if (stats!!.branches.isNotEmpty()) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            GitBranchVisualization(
+                                Modifier.fillMaxWidth(),
+                                stats!!.branches
                             )
-                            LazyVerticalGrid(
-                                modifier = Modifier.fillParentMaxWidth().height(700.dp),
-                                columns = GridCells.Adaptive(150.dp),
-                                contentPadding = PaddingValues(10.dp)
-                            ) {
-                                for (card in cardStats) {
-                                    item {
-                                        Box(
-                                            modifier = Modifier.clip(RoundedCornerShape(15.dp))
-                                                .background(MaterialTheme.colorScheme.secondaryContainer)
-                                        ) {
-                                            Column(
-                                                modifier = Modifier.padding(10.dp)
-                                            ) {
-                                                Text(
-                                                    card.key,
-                                                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                                                )
-                                                Text(
-                                                    card.value.toString(),
-                                                    style = MaterialTheme.typography.titleMedium,
-                                                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                                                )
-                                            }
-                                        }
+                        }
+                    }
+                    items(dataToVisualize.withIndex().toList()) { (index, data) ->
+                        val showTotalData =
+                            if (labels[index] == "Languages: " || labels[index] == "Projects: ") null else stats!!.humanReadableTotal
+                        Text(
+                            text = labels[index],
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(start = 10.dp)
+                        )
+                        GeneratePieChart(data, showTotalData) { newData ->
+                            val labelToParams = mapOf(
+                                "Languages: " to listOf(project, os, newData, machine, editor),
+                                "Projects: " to listOf(newData, os, language, machine, editor),
+                                "Machines: " to listOf(project, os, language, newData, editor),
+                                "Operating Systems: " to listOf(
+                                    project,
+                                    newData,
+                                    language,
+                                    machine,
+                                    editor
+                                ),
+                                "Editors: " to listOf(project, os, language, machine, newData)
+                            )
+
+                            labelToParams[labels[index]]?.let { params ->
+                                navController.navigate(
+                                    ProjectView(
+                                        timeRange.toString(),
+                                        project = params[0],
+                                        os = params[1],
+                                        language = params[2],
+                                        machine = params[3],
+                                        editor = params[4]
+                                    )
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        Column {
+                            for (card in cardStats) {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(10.dp)
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(15.dp))
+                                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(10.dp)
+                                    ) {
+                                        Text(
+                                            card.key,
+                                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                                        )
+                                        Text(
+                                            card.value.toString(),
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                                        )
                                     }
                                 }
                             }
@@ -367,13 +363,13 @@ fun ProjectView(
     }
 }
 
-fun combineStrings(vararg strings: String?): String {
-    return strings.joinToString(separator = " ") { it ?: "" }
-}
-
 @OptIn(ExperimentalKoalaPlotApi::class)
 @Composable
-fun GeneratePieChart(stats: List<WakaTodayData>, total: String, onClick: (name: String) -> Unit) {
+fun GeneratePieChart(
+    stats: List<WakaTodayData>,
+    total: String? = null,
+    onClick: (name: String) -> Unit
+) {
     val mutableStats = mutableListOf(*stats.toTypedArray())
     val sum = mutableStats.sumOf { it.totalSeconds }
     var other = 0L
@@ -403,7 +399,7 @@ fun GeneratePieChart(stats: List<WakaTodayData>, total: String, onClick: (name: 
     }
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().height(300.dp)
     ) {
         PieChart(
             values = mutableStats.map { it.totalSeconds.toFloat() },
@@ -422,7 +418,7 @@ fun GeneratePieChart(stats: List<WakaTodayData>, total: String, onClick: (name: 
                     onClick = { onClick(mutableStats.map { it.name }[i]) }
                 )
             },
-            holeSize = 0.50F,
+            holeSize = if (total == null) 0.0f else 0.50F,
             holeContent = {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -432,7 +428,7 @@ fun GeneratePieChart(stats: List<WakaTodayData>, total: String, onClick: (name: 
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text("Total", style = MaterialTheme.typography.titleLarge)
-                        Text(total)
+                        Text(total.toString())
                     }
                 }
             }
