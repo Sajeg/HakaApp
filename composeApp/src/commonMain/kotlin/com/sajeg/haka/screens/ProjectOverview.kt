@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.List
@@ -93,7 +96,8 @@ fun ProjectOverview(navController: NavController) {
                     Text(update, color = MaterialTheme.colorScheme.surface)
                 }
                 if (projects.isNotEmpty()) {
-                    LazyColumn (
+                    LazyVerticalGrid (
+                        columns = GridCells.Adaptive(400.dp),
                         modifier = innerModifier
                     ){
                         items(projects) {
@@ -124,8 +128,8 @@ fun ProjectCard(project: WakaProjectData, navController: NavController) {
         Column(
             modifier = Modifier.padding(15.dp)
         ) {
-            Text(project.name, style = MaterialTheme.typography.displaySmall)
-            Text(project.humanReadableLastHeartbeatAt, style = MaterialTheme.typography.labelMedium)
+            Text(project.name, style = MaterialTheme.typography.displaySmall, maxLines = 1)
+            Text("Last time accessed: ${project.humanReadableLastHeartbeatAt}", style = MaterialTheme.typography.labelMedium)
         }
     }
 }

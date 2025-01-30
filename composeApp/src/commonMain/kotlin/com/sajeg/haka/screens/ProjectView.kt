@@ -299,7 +299,7 @@ fun ProjectView(
                         Text(
                             text = labels[index],
                             style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(start = 10.dp)
+                            modifier = Modifier.padding(10.dp)
                         )
                         GeneratePieChart(data, showTotalData) { newData ->
                             val labelToParams = mapOf(
