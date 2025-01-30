@@ -121,6 +121,15 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            macOS {
+                iconFile.set(project.file("icon.icns"))
+            }
+            windows {
+                iconFile.set(project.file("icon.ico"))
+            }
+            linux {
+                iconFile.set(project.file("icon.png"))
+            }
             packageName = "com.sajeg.haka"
             packageVersion = "1.0.0"
         }
