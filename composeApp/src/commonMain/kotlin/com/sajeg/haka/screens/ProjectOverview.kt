@@ -36,7 +36,6 @@ import com.sajeg.haka.SaveManager
 import com.sajeg.haka.waka.Wakatime
 import com.sajeg.haka.waka.classes.WakaProjectData
 import com.sajeg.haka.waka.classes.WakaTimeRange
-import com.sajeg.haka.waka.classes.WakaTodayData
 
 enum class NavigationDestinations(
     val label: String,
@@ -113,7 +112,7 @@ fun ProjectOverview(navController: NavController) {
 fun ProjectCard(project: WakaProjectData, navController: NavController) {
     Card(
         modifier = Modifier.padding(5.dp).fillMaxSize().clickable {
-            navController.navigate(ProjectView(timeRange = WakaTimeRange.ALLTIME.toString(), project = project.id))
+            navController.navigate(ProjectView(timeRange = WakaTimeRange.ALL_TIME.toString(), project = project.id))
         }
     ) {
         Column(

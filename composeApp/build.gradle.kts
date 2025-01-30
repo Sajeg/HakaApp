@@ -46,13 +46,13 @@ kotlin {
         val desktopMain by getting
 
         androidMain.dependencies {
+            implementation(libs.coil.network.okhttp)
             implementation(libs.ktor.client.cio)
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies {
             implementation(libs.coil.compose)
-            implementation(libs.coil.network.okhttp)
             implementation(compose.materialIconsExtended)
             implementation(compose.material3AdaptiveNavigationSuite)
             implementation(libs.navigation.compose)
@@ -65,12 +65,15 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
+            implementation(compose.animation)
+            implementation(libs.koalaplot.core)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
         }
         desktopMain.dependencies {
+            implementation(libs.coil.network.okhttp)
             implementation(libs.ktor.client.cio)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)

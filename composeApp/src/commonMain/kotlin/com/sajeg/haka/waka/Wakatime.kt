@@ -151,16 +151,16 @@ class Wakatime(
         CoroutineScope(Dispatchers.Default).launch {
             var params = ""
             if (project != null) {
-                params += "project=$project"
+                params += "project=$project&"
             }
             if (language != null) {
-                params += "language=$language"
+                params += "language=$language&"
             }
             if (os != null) {
-                params += "operating_system=$os"
+                params += "operating_system=$os&"
             }
             if (machine != null) {
-                params += "machine=$machine"
+                params += "machine=$machine&"
             }
             val response: HttpResponse =
                 client.get("${apiEndpoint}/wakatime/v1/users/current/stats/${timeRange.time}?$params") {
@@ -171,12 +171,10 @@ class Wakatime(
             if (response.status == HttpStatusCode.OK) {
                 val body = response.body<String>()
                 val dataBody = Json.decodeFromString<WakaData>(body)
-                println("Error: ${response.status} with ${response.headers} and ${dataBody.toString()}")
                 onResponse(
                     Json.decodeFromString<WakaStats>(dataBody.data.toString()),
                 )
             } else {
-                println("Error: ${response.status} with ${response.headers} and ${response.body<String>()}")
                 onFailed()
             }
         }

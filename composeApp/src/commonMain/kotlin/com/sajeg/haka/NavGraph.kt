@@ -34,7 +34,7 @@ fun SetupNavGraph(
             val params = it.toRoute<ProjectView>()
             ProjectView(
                 navController,
-                WakaTimeRange.fromString(params.timeRange) ?: WakaTimeRange.ALLTIME,
+                WakaTimeRange.fromString(params.timeRange) ?: WakaTimeRange.ALL_TIME,
                 params.project,
                 params.language,
                 params.os,

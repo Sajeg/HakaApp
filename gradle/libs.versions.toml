@@ -1,20 +1,22 @@
 [versions]
-agp = "8.8.0"
+agp = "8.5.2"
 android-compileSdk = "34"
 android-minSdk = "24"
 android-targetSdk = "34"
 androidx-activityCompose = "1.9.3"
-androidx-lifecycle = "2.8.3"
+koalaplot = "0.8.0"
+androidx-lifecycle = "2.8.4"
 coilCompose = "3.0.4"
-compose-multiplatform = "1.7.0"
-kotlin = "2.0.21"
-kotlinx-coroutines = "1.9.0"
+compose-multiplatform = "1.7.3"
+kotlin = "2.1.10"
+kotlinx-coroutines = "1.10.1"
 kotlinxSerializationJson = "1.7.3"
 ktor = "3.0.1"
 multiplatformSettings = "1.2.0"
 navigationComposeVersion = "2.8.0-alpha10"
 
 [libraries]
+koalaplot-core = { group = "io.github.koalaplot", name = "koalaplot-core", version.ref = "koalaplot" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
