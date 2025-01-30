@@ -118,17 +118,27 @@ dependencies {
 compose.desktop {
     application {
         mainClass = "com.sajeg.haka.MainKt"
-
+        buildTypes.release.proguard {
+            isEnabled.set(false)
+        }
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Rpm, TargetFormat.AppImage)
+            modules("java.base", "java.desktop", "java.logging")
             macOS {
                 iconFile.set(project.file("icon.icns"))
+                bundleID = "com.sajeg.haka"
+                signing {
+                    sign.set(false)
+                }
             }
             windows {
                 iconFile.set(project.file("icon.ico"))
             }
             linux {
                 iconFile.set(project.file("icon.png"))
+                packageName = "hakaapp"
+                debMaintainer = "sajeg.dev@gmail.com"
+                menuGroup = "Development"
             }
             packageName = "com.sajeg.haka"
             packageVersion = "1.0.0"
